@@ -1,0 +1,171 @@
+                    
+
+                    Observer:
+
+
+        Tambien llamado: Observador, Publicacion-Suscripcion, Modelo-Patron,
+        Event-Suscriber, Listener.
+
+
+                Proposito:
+
+        Observer es un patron de diseño de comportamiento que te permite
+        definir un mecanismo de suscripcion para notificar a varios objetos
+        sobre cualquier evento que le suceda al objeto que estan observando.
+
+                Problema:
+
+        Imagina que tienes dos tipos de objetos: un objeto Cliente y un objeto
+        Tienda. El cliente esta muy interesado en una marca particular de
+        producto (digamos, un nuevo modelo de iPhone) que estará disponible en
+        la tienda muy pronto.
+
+        El cliente puede visitar la tienda cada día para comprobar la
+        disponibilidad del producto. Pero, mientras el producto está en camino,
+        la mayoría de estos viajes serán en vano.
+
+        Por otro lado la tienda podría enviar cientos de correos (lo cual se
+        podría considerar spam) a todos los clientes cada vez que hay un nuevo
+        producto disponible. Esto ahorraria a los clientes los interminables
+        viajes a la tienda, pero, al mismo tiempo, molestaría a otros que no
+        están interesados en los nuevos productos.
+
+        Parece que nos encontramos ante un conflicto. O el cliente pierde
+        tiempo comprobando la disponibilidad del producto, o bien la tienda
+        desperdicia recursos notificando a los clientes equivocados.
+
+                Solucion:
+
+        El objeto que tiene un estado interesante suele llamarse sujeto, pero,
+        como también va a notificar a otros objetos los cambios en su estado,
+        le llamaremos notificador(en ocasiones también llamado publicador). El
+        resto de los objetos que quieren conocer los cambios en el estado del
+        notificador, se denominan suscriptores.
+
+        El patrón Observer sugiere que añadas un mecanismo de suscripcion a la
+        clase notificadora para que los objetos individuales puedan suscribirse
+        o cancelar su suscripcion a un flujo de eventos que proviene de esa
+        notificadora. ¡No temas! No es tan complicado como parece. En realidad,
+        este mecanismo consiste en :1) un campo matriz para almacenar una lista
+        de referencias a objetos suscriptores y 2) varios metodos publicos que
+        permitan añadir suscriptores y eliminarlos de esa lista.
+
+
+        Ahora, cuando le suceda un evento importante al notificador, recorre
+        sus suscriptores y llama al metodo de notificacion especifico de sus
+        objetos.
+
+        Las aplicaciones reales pueden tener decenas de clases suscriptoras
+        diferentes interesadas en seguir los eventos de la misma clase
+        notificadora. No querrás acoplar la notificadora a todas esas clases.
+        Ademas puede que no conozcas de ellas de antemano si se supone que
+        otras personas pueden utilizar tu clase notificadora.
+
+        Por eso es fundamental que todos los suscriptores implementen la misma
+        interfaz que el notificador unicamente se comunique con ellos a traves
+        de esa interfaz. Esta interfaz debe declarar el metodo de notificacion
+        junto con un grupo de parametros que el notificador puede utilizar para
+        pasar cierta informacion contextual con la notificacion.
+
+        Si tu aplicacion tiene varios tipos diferentes de notificadores y
+        quieres hacer a tus suscriptores compatibles con todos ellos, puedes ir
+        mas alla y hacer que todos los notificadores sigan la misma interfaz.
+        Esta interfaz solo tendra que describir algunos metodos de suscripcion.
+        La interfaz permitira a los suscriptores observar los estados de los
+        notificadores sin acoplarse a sus clases.
+
+
+                Aplicabilidad:
+
+        Utiliza el patron observer cuando los cambios de un objeto puedan
+        necesitar cambiar otros objetos y el grupo sea desconocido de antemano
+        o cambie dinamicamente.
+
+        Puedes experimentar este problema a menudo al trabajar con clases de la
+        interfaz grafica de usuario. Por ejemplo, si creaste clases
+        personalizadas de boton y quieres permitir al cliente colgar codigo de
+        tus botones para que se active cuando un usuario pulse un boton.
+
+        El patron Observer permite que cualquier objeto que implemente la
+        interfaz suscriptora pueda suscribirse a notificaciones de eventos en
+        objetos notificadores. Puedes añadir el mecanismo de suscripcion a tus
+        botones, permitiendo a los clientes acoplar su codigo personalizado a
+        traves de clases suscriptoras personalizadas.
+
+        Utiliza el patron cuando algunos objetos de tu aplicacion deban
+        observar a otros, pero solo durante un tiempo limitado o en casos
+        especificos.
+
+        La lista de suscripcion es dinamica, por lo que los suscriptores pueden
+        unirse o abandonarla cuando lo deseen.
+
+
+                Como Implementarlo:
+
+        1.- Repasa tu logica de negocio e intenta dividirla en dos partes: la
+        funcionalidad central, independiente del resto de codigo, actuara como
+        notificador; el resto se convertira en un grupo de clases suscriptoras.
+
+        2.- Declara la interfaz suscriptora. Como minimo, debera declarar un
+        unico metodo (  actualizar  )
+
+        3.- Declara la interfaz notificadora y describe un par de metodos para
+        añadir y eliminar de la lista un objeto suscriptor. Recuerda que los
+        notificadores deben trabajar con suscriptores unicamente a traves de la
+        interfaz suscriptora.
+
+        4.- decide donde colocar la lista se suscripcion y la implementacion de
+        metodos de suscripcion. Normalmente, este codigo tiene el mismo aspecto
+        para todos los tipos de notificadores, por lo que el lugar obvio para
+        colocarlo es en una clase abstracta derivada directamente de la
+        interfaz notificadora. Los notificadores concretos extienden esa clase,
+        heredando el comportamiento de suscripcion.
+
+        Sin embargo, si estas aplicando el patron a una jerarquia de clases
+        existentes, considera una solucion basada en la composicion: coloca la
+        logica de la suscripcion en un objeto separado y haz que todos los
+        notificadores reales la utilicen.
+
+        5.- Crea clases notificadoras concretas. Cada vez que suceda algo
+        importante dentro de una notificadora, debera notificar a todos sus
+        suscriptores.
+
+        6.- Implementa los metodos de notificacion de actualizaciones en clases
+        suscriptoras concretas. La mayoria de las suscriptoras necesitaran
+        cierta informacion de contexto sobre el evento, que puede pasarse como
+        argumento del metodo de notificacion.
+        
+        Pero hay otra opcion. Al recibir una notificacion, el suscriptor puede
+        extraer la informacion directamente de ella. En este caso, el
+        notificador debe pasarse a si mismo a traves del metodo de
+        actualizacion. La opcion menos flexible es vincular un notificador con
+        el suscriptor de forma permanente a traves del constructor.
+
+        7.- El cliente debe crear todos los suscriptores necesarios y
+        registrarlos con los notificadores adecuados.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

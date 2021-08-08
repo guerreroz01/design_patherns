@@ -1,0 +1,136 @@
+Proposito:
+    El patrón iterador es un mecanismo de acceso a los elementos que
+    constituyen una estructura de datos oara la utilización de estos sin
+    exponer su estructura.
+
+Motivación:
+    El patrón surge del deseo de acceder a los elementos de un contenedor de
+    objetos (por ejemplo una lista) sin exponer su representación interna. A
+    demas es posible que se necesite mas de una forma de recorrer la estructura
+    siendo para ello necesario crear modificaciones en la clase.
+
+    La solución que propone el patrón es añadir metodos que permitan recorrer
+    la estructura sin referenciar explicitamente su representacion. La
+    responsabilidad del recorrido se traslada al objeto iterador.
+
+    El problema de introducir este objeto iterador reside en que los clientes
+    necesitan conocer la estructura para crear el iterador apropiado.
+
+    Esto se soluciona generalizando los distintos iteradores en una abstracción
+    y dotando a las estructuras de datos de un método de fabricación que cree
+    un iterador concreto.
+
+Aplicabilidad:
+    El patrón iterador permite el acceso al contenido de una estructura sin
+    exponer su representación interna. Además diferentes iteradores pueden
+    presentar diferentes tipos de recorrido sobre la estructura (recorrido de
+    principio a fin, recorrido con saltos...) por otro lado los iteradores no
+    tienen por que limitarse a recorrer la estructura, sino que podrían
+    incorporar otro tipo de lógica (por ejemplo filtrado de elementos)
+
+Participantes:
+    
+    Iterator: 
+        define la interfaz para recorrer el agregado de elementos y
+    acceder a ellos, de manera que el cliente no tenga que conocer los detalles
+    y sea capaz de manejarlos de todos modos.
+    
+    ConcreteIterator: 
+        Implementa la interfaz propuesta por el iterador. Es el
+    que se encarga de mantener la posicion actual en el recorrido de la
+    estructura.
+
+    Aggregate:
+        define la interfaz para el método de fabricación de iteradores.
+
+    ConcreteAggregate:
+        implementa la estructura de datos y el método de fabricación de
+        iteradores que crea un iterador especifico para su estructura.
+
+
+_______________________________________________________________________________
+
+
+                        Problema
+
+    Las colecciones son de los tipos de datos más utilizados en programación.
+    Sin embargo, una colección tan solo es un contenedor para un grupo de
+    objetos.
+
+    La mayoría de las colecciones almacena sus elementos en simples listas,
+    pero algunas de ellas se basan en pilas, arboles, grafos y otras
+    estructuras complejas de datos.
+
+    Independientemente de como se estructure una coleccion, debe aportar una
+    forma de acceder a sus elementos de modo que otro código pueda utilizar
+    dichos elementos. Debe haber una forma de recorrer cada elemento de la
+    coleccion sin acceder a los mismos elementos una otra vez.
+
+    Esto puede parecer un trabajo sencillo si tienes una coleccion basada en
+    una lista. En este caso solo tienes que recorrer en bucle todos sus
+    elementos. Pero ¿como recorres secuencialmente elementos de una estructura
+    compleja de datos, como un arbol? por ejemplo, un dia puede bastarte con un
+    recorrido de profundidad de un arbol, pero, al dia siguiente, quiza
+    necesites un recorrido en anchura. Y la semana siguiente, puedes necesitar
+    otra cosa, como un acceso aleatorio de los elementos del arbol.
+
+    Añadir mas y mas algoritmos de recorrido a la coleccion nubla gradualmente
+    su responsabilidad principal, que es el almacenamiento eficiente de la
+    informacion. Ademas, puede que algunos algoritmos esten personalizados para
+    una aplicacion especifica, por lo que incluirlos en una clase genérica de
+    coleccion puede resultar extraño.
+
+    Por otro lado, el codigo cliente que debe funcionar con varias colecciones
+    puede no saber como estas almecenan sus elementos. No obstante, ya que
+    todas las colecciones proporcionan formas diferentes de acceder a sus
+    elementos, no tienes otra opcion mas que acoplar tu codigo a alas clases de
+    la coleccion especifica.
+
+                        Solucion
+
+    La idea central del patron iterador es extraer el comportamiento de
+    recorrido de una coleccion y colocarlo en un objeto independiente llamado
+    iterador.
+
+    Ademas de implementar el propio algoritmo, un objeto iterador encapsula
+    todos los detalles del recorrido, como la posicion actual y cuantos
+    elementos quedan hasta el final. Debido a esto, varios iteradores pueden
+    recorrer la misma coleccion al mismo tiempo, independientemente los unos de
+    los otros.
+
+    Normalmente, los iteradores aportan un metodo principal para extraer
+    elementos de la coleccion. El cliente puede continuar ejecutando este
+    metodo hasta que no devuelva nada, lo que significa que el iterador ha
+    recorrido todos los elementos.
+
+    Todos los iteradores deben implementar la misma interfaz. Esto hace que el
+    codigo cliente sea compatible con cualquier tipo de coleccion o cualquier
+    algoritmo de recorrido, siempre y cuando exista un iterador adecuado. Si
+    necesitas una forma particular de recorrer una coleccion, creas una nueva
+    clase iteradora sin tener que cambiar la coleccion o el cliente
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,142 @@
+                Memento
+
+    Tambien llamado: Recuerdo, Instantanea, Snapshot.
+
+
+                Proposito
+
+    Memento es un patron de diseño de comportamiento que te permite guardar y
+    restaurar el estado previo de un objeto sin revelar los detalles de su
+    implementacion.
+
+
+                Problema
+
+    Imagina que estas creando una aplicacion de edicion de texto. Ademas de
+    editar texto, tu programa puede formatearlo, asi como insertar imagenes en
+    linea, etc.
+
+    En cierto momento, decides permitir a los usuarios deshacer cualquier
+    operacion realizada en el texto. Esta funcion se ha vuelto tan habitual en
+    los ultimos años que hoy en dia todo el mundo espera que todas las
+    aplicaciones la tengan. Para la implementacion eliges la solucion directa.
+    Antes de realizar cualquier operacion, la aplicacion registra el estado de
+    todos los objetos y los guarda en un almacenamiento. Mas tarde, cuando un
+    usuario decide revertir una accion, la aplicacion extrae la ultima
+    instantanea del historial y la utiliza para restaurar el estado de todos
+    los objetos.
+
+    Pensemos en estas instantaneas de estado ¿Como producirias una,
+    exactamente? Probablemente tengas que recorrer todos los campos de un
+    objeto y copiar sus valores en el almacenamiento. Sin embargo, esto solo
+    funcionara si el objeto tiene unas restricciones bastante laxas al acceso a
+    sus contenidos. Lamentablemente, la mayoria de objetos reales no permite a
+    otros asomarse a su interior facilmente, y esconden todos los datos
+    significativos en campos privados.
+
+    Ignora ese problema por ahora y asumamos que nuestros objetos se comportan
+    como hippies: prefieren relaciones abiertas y mantienen su estado publico.
+    Aunque esta solucion resolveria el problema inmediato y te permitiria
+    producir instantaneas de estados de objetos a voluntad, sigue teniendo
+    algunos inconvenientes serios. En el futuro, puede que decidas refactorizar
+    algunas de las clases editoras, o añadir o eliminar algunos de los campos.
+    Parece facil, pero esto tambien exige cambiar las clases responsables de
+    copiar el estado de los objetos afectados.
+
+    Pero aun hay mas. Pensemos en las propias "instantaneas" del estado del
+    editor. ¿Que datos contienen? Como minimo, deben contener el texto, las
+    cordenadas del cursor, la posicion actual de desplazamiento, etc. Para
+    realizar una instantanea debes recopilar estos valores y meterlos en algun
+    tipo de contenedor.
+
+    Probablemente almacenaras muchos de estos objetos de contenedor dentro de
+    una lista que represente el historial. Por lo tanto, probablemente los
+    contenedores acaben siendo objetos de una clase. La clase no tendra apenas
+    metodos, pero si muchos campos que reflejen el estado del editor. Para
+    permitir que otros objetos escriban y lean datos a y desde una
+    instantanea, es probable que tengas que hacer sus campos publicos. Esto
+    expondria todos los estados del editor, privados o no. Otras clases se
+    volveran dependientes de cada pequeño cambio en la clase instantanea, que
+    de otra forma ocurriria dentro de campos y metodos privados sin afectar a
+    clases externas.
+
+    Parece que hemos llegado a un callejon sin salida: o bien exponemos todos
+    los detalles internos de las clases, haciendolas demasiado fragiles, o
+    restringimos el acceso a su estado, haciendo imposible producir
+    instantaneas. ¿Hay alguna otra forma de implementar el "deshacer"?
+
+
+                    Solucion
+
+    Todos los problemas que hemos experimentado han sido provocados por una
+    encapsulacion fragmentada. Algunos objetos intentan hacer mas de lo que
+    deben, Para recopilar los datos necesarios para realizar una accion,
+    invaden el espacio privado de otros objetos en lugar de permitir a esos
+    objetos realizar la propia accion.
+
+    El patron Memento delega la creacion de instantaneas de estado al
+    propietario de ese estado, el objeto originador. Por lo tanto, en lugar de
+    que haya otros objetos intentando copiar el estado del editor desde el
+    exterior, la propia clase editora puede hacer la instantanea, ya que tiene
+    pleno acceso a su propio estado.
+
+    El patron sugiere almacenar la copia del estado del objeto en un objeto
+    especial llamado memento. Los contenidos del memento no son accesibles para
+    ningun otro objeto excepto el que lo produjo. Otros objetos deben
+    comunicarse con mementos utilizando una interfaz limitada que pueda
+    permitir extraer los metadatos de la instantanea (tiempo de creacion, el
+    nombre de la operacion realizada etc.) pero no el estado del objeto
+    original contenido en la instantanea.
+
+    Una politica tan restrintiva te permite almacenar mementos dentro de otros
+    objetos, normalmente llamados cuidadores. Debido a que el cuidador trabaja
+    con el memento unicamente a traves de la interfaz limitada, no puede
+    manipular el estado almacenado dentro del memento. Al mismo tiempo, el
+    originador tiene acceso a todos los campos dentro del memento,
+    permitiendole restaurar su estado previo a voluntad.
+
+    En nuestro ejemplo del editor de texto, podemos crear una clase separada de
+    historial que actue como cuidadora. Una pila de mementos almacenados dentro
+    de la cuidadora crecera cada vez que el editor vaya a ejecutar una
+    operacion. Puedes incluso presentar esta pila dentro de la UI de la
+    aplicacion, mostrando a un usuario el historial de operaciones previamente
+    realizadas.
+
+    Cuando un usuario activa la funcion Deshacer, el historial toma el memento
+    mas reciente de la pila y lo pasa de vuelta al editor, solicitando una
+    restauracion. Debido a que el editor tiene pleno acceso al memento, cambia
+    su propio estado con los valores tomados del memento.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
