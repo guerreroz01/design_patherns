@@ -7,6 +7,7 @@ To create an iterator in Python, there are two classes from the builtin
 collections module - Iterable, Iterator. We need to implement the __iter__()
 method in the iterated object (collection), and the __next__() method in the
 iterator.
+
 """
 
 
