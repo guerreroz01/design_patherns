@@ -1,0 +1,201 @@
+
+
+
+                        Command
+
+    Tambien llamado Comando, Orden, Action, Transaction
+
+
+
+                    Proposito
+
+    Command es un patron de diseño de comportamiento que convierte una
+    solicitud en un objeto independiente que contiene toda la informacion sobre
+    la solicitud. Esta transformacion te permite parametrizar los metodos con
+    diferentes solicitudes, retrasar o poner en cola la ejecucion de una
+    solicitud y soportar operaciones que no se pueden realizar.
+
+
+                    Problema
+
+    Imagina que estas trabajando en una nueva aplicacion de edicion de texto.
+    Tu tarea actual consiste en crear una barra de herramientas con unos
+    botones para varias operaciones del editor. Creaste una clase Boton muy
+    limpia que puede utilizarse para los botones de la barra de herramientas y
+    tambien para botones genericos en diversos dialogos.
+
+    Aunque todos estos botones se parecen, se supone que hacen cosas
+    diferentes. ¿Donde pondrias el codigo para los varios gestores de clics de
+    estos botones? La solucion mas simple consiste en crear cientos de
+    subclases para cada lugar donde se necesite el boton. Estas subclases
+    contendran el codigo que debera ejecutarse con el clic en un boton.
+
+    Pronto te das cuenta que la solucion es muy deficiente. En primer lugar,
+    tienes una enorme cantidad de subclases, lo cual no supondria un problema
+    si no corrieras el riesgo de descomponer el codigo de esas subclases cada
+    vez que modifiques la clase boton. Dicho de otra forma sencilla, tu codigo
+    GUI depende torpemente del volatil codigo de la logica de negocio.
+
+    Y aqui esta la parte mas desagradable. Algunas operaciones, como
+    copiar/pegar texto, deben ser invocadas desde varios lugares. Por ejemplo,
+    un usuario podria hacer clic en un pequeño boton "Copiar" de la barra de
+    herramientas, o copiar algo a traves del menu contextual, o pulsar Ctrl+C
+    en el teclado.
+
+    Inicialmente, cuando tu aplicacion solo tenia la barra de herramientas, no
+    habia problema en colocar la implementacion de varias operaciones dentro de
+    las subclases de boton. En otras palabras, tener el codigo para copiar
+    texto de la subclase BotonCopiar estaba bien. Sin embargo, cuando
+    implementas menus contextuales, atajos y otros elementos, debes duplicar el
+    codigo de la operacion en muchas clases, o bien hacer menus dependientes de
+    los botones, lo cual es una opcion aun peor.
+
+
+                    Solucion
+
+    El buen diseño de software a menudo se basa en el principio de separacion
+    de responsabilidades, lo que suele tener como resultado la division de la
+    aplicacion en capas. El ejemplo mas habitual es tener una capa para la
+    interfaz grafiaca de usuario (GUI) y otra capa para la logica de negocio.
+    La capa GUI es responsable de representar una bonita imagen en pantalla,
+    capturar entradas y mostrar resultados de lo que el usuario y la aplicacion
+    estan haciendo. Sin embargo, cuando se trata de hacer algo importante, como
+    calcular la trayectoria de la luna o componer un informe anual, la capa GUI
+    delega el trabajo a la capa subyacente de la logica de negocio.
+
+    El cogigo puede tener este aspecto: un objeto GUI invoca a un metodo de un
+    objeto de la logica de negocio, pasandole algunos argumentos. Este proceso
+    se describe habitualmente como un objeto que envia a otro una solicitud.
+
+    El patron Command sugiere que los objetos GUI no envien estas solicitudes
+    directamente. En lugar de ello, debes extraer todos los detalles de la
+    solicitud, como el objeto que esta siendo invocado, el nombre del metodo y
+    la lista de argumentos, y ponerlos dentro de una clase comando separada con
+    un unico metodo que activa esta solicitud.
+
+    Los objetos de comando sirven como vinculo entre varios objetos GUI y de
+    logica de negocio. De ahora en adelante, el objeto GUI no tiene que conocer
+    que objeto de la logica de negocio recibira la solicitud y como la
+    procesara. El objeto GUI activa el comando, que gestiona todos los
+    detalles.
+
+    el siguiente paso es hacer que tus comandos implementen la misma interfaz.
+    Normalmente tiene un unico metodo de ejecucion que no acepta parametros.
+    Esta interfaz te permite utilizar varios comandos con el mismo emisor de la
+    solicitud, sin acoplarla a clases concretas de comandos. Adicionalmente,
+    ahora puedes cambiar objetos de comando vinculados al emisor, cambiando
+    efectivamente el comportamiento del emisor durante el tiempo de ejecucion.
+
+    Puede que hayas observado que falta una pieza del rompecabezas, que son los
+    parametros de la solicitud. Un objeto GUI puede haber proporcionado al
+    objeto de la capa de negocio algunos parametros. Ya que el metodo de
+    ejecucion del comando no tiene parametros, ¿como pasaremos los detalles de
+    la solicitud al receptor? Resulta que el comando debe estar preconfigurado
+    con esta informacion o ser capaz de consegirla por su cuenta.
+
+    Regresemos a nuestro editor de textos. Tras aplicar el patron Command, ya
+    no necesitamos todas esas subclases de boton para implementar varios
+    comportamientos de clic. Basta con colocar un unico campo dentro de la
+    clase base Boton que almacene una referencia a un objetod de comando y haga
+    que el boton ejecute ese comando en un click.
+
+    Implementaras un puñado de la clase de comando para toda operacion posible
+    y la vincularas con botones particulares, dependiendo del comportamiento
+    pretendido de los botones.
+
+    Otros elementos GUI, como menus, atajos o dialogos enteros, se pueden
+    implementar del mismo modo. Se vincularan a un comando que se ejecuta
+    cuando un usuario interactua con el elemento GUI. Como probablemente ya
+    habrias adivinado, los elementos relacionados con las mismas operaciones
+    sse vincularan a los mismos comandos, evitando cualquier duplicaion de
+    codigo.
+
+    Come resultado, los comandos se convierten en una conveniente capa
+    intermedia que reduce el acoplamiento entre las capas de la GUI y la logica
+    de negocio. Y esto es tan solo una fraccion de las ventajas que ofrece el
+    patron Command.
+
+
+                    Aplicabilidad
+
+    Utiliza el patron Command cuando quieras parametrizar objetos con
+    operaciones.
+
+    El patron Command puede convertir una llamada a un metodo especifico en un
+    objeto autonomo, Este cambio abre la puerta a muchos usos interesantes:
+    puedes pasar comandos como argumentos de metodo, almacenarlos dentro de
+    otros objetos, cambiar comandos vinculados durante el tiempo de ejecucion,
+    etc.
+
+    Aqui tienes un ejemplo: estas desarrollando un componente GUI, como un menu
+    contextual, y quieres que los usuarios puedan configurar opciones del menu
+    que activen operaciones cuando un usuario final haga clic sobre ellos.
+
+    Utiliza el patron Command cuando quieras poner operaciones en cola,
+    programar su ejecucion, o ejecutarlas de forma remota.
+
+    Como pasa con cualquier otro objeto, un comando se puede serializar, lo
+    cual implica convertirlo en una cadena que pueda escribirse facilmente a un
+    archivo o una base de datos. Mas tarde, la cadena puede restaurarse como el
+    objeto de comando inicial. De este modo, puedes retardar y programar la
+    ejecucion del comando. Pero aun hay mas. Del mismo modo, puedes poner
+    comandos en cola, asi como registrarlos o enviarlos por la red.
+
+    Utiliza el patron Command cuando quieras implementar operaciones
+    reversibles.
+
+    Aunque hay muchas formas de implementar deshacer/rehacer, el patron Command
+    es quiza la mas popular de todas.
+
+    Para poder revertir operaciones, debes implementar el historial de las
+    operaciones realizadas. El historial de comando es una pila que contiene
+    todos los objetos de comando ejecutados junto a copias de seguridad
+    relacionadas del estado de la aplicacion.
+
+    Este metodo tiene dos desventajas. Primero, no es tan facil guardar el
+    estado de una aplicacion, porque parte de ella puede ser privada, Este
+    problema puede mitigarse con el patron Memento.
+
+    Segundo, las copias de seguridad de estado pueden consumir mucha memoria
+    RAM. Por lo tanto, en ocasiones puedes recurrir a una implementacion
+    alternativa: en lugar de restaurar el estado pasado, el comando realiza la
+    operacion inversa, aunque esta tambien tiene un precio, ya qye puede
+    resultar dificil o incluso imposible de implementar.
+
+
+                Como implementarlo
+
+    1.- Declara la interfaz de comando con un unico metodo de ejecucion.
+
+    2.- Empieza extrayendo solicitudes y poniendolas dentro de las clases
+    concretas de comando que implementen la interfaz de comando. Cada clase
+    debe contar con un grupo de campos para almacenar los argumentos de las
+    solicitudes junto con referencias al objeto receptor. Todos estos valores
+    deben inicializarse a traves del constructor del comando.
+
+    3.- Identifica clases que actuen como emisoras. Añade los campos para
+    almacenar comandos dentro de estas clases. Las emisoras deberan comunicarse
+    con sus comandos tan solo a traves de la interfaz de comando. Normalmente
+    las emisoras no crean objetos de comando por su cuenta, sino que los
+    obtienen del codigo cliente.
+
+    4.- Cambia las emisoras de forma que ejecuten el comando en lugar de enviar
+    directamente una solicitud al receptor.
+
+    5.- El cliente debe inicializar objetos en el siguiente order:
+            +- Crear receptores.
+            +- Crear comandos y asociarlos con receptores si es necesario.
+            +- Crear emisores y asociarlos con comandos especificos.
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,177 @@
+                                State
+
+Tambien llamado Estado.
+
+
+                                Proposito
+
+State es un patron de diseño de comportamiento que permite a un objeto
+alterar su comportamiento cuando su estado interno cambia. Parece como si
+el objeto cambiara su clase.
+
+                                Problema
+
+El patron State esta estrechamente relacionado con el concepto de la
+Maquina de estados finitos.
+
+La idea principal es que, en cualquier momento dado, un programa puede
+encontrarse en un numero finito de estados, Dentro de cada estado unico, el
+programa se comporta de forma diferente y puede cambiar de un estado a otro
+instantaneamente. Sin embargo, dependiendo de un estado actual, el programa
+puede cambiar o no a otros estados. Estas normas de cambio llamadas
+transiciones tambien son finitas y predeterminadas.
+
+Tambien puedes aplicar esta solucion a los objetos. Imagina que tienes una
+clase Documento. Un documento puede encontrarse en uno de estos tres
+estados: Borrador, Moderacion y Publicado. El metodo publicar del documento
+funciona de forma ligeramente distinta en cada estado:
+
+    .- En Borrador, mueve el documento a moderacion.
+
+    .- En Moderacion, hace publico el documento, pero solo si el usuario
+    actual es administrador.
+
+    .- En Publicado, no hace nada en absoluto.
+
+Las maquinas de estado se implementan normalmente con muchos operadores
+condicionales (if o switch) que seleccionan el comportamiento adecuado del
+estado actual del objeto. Normalmente, este "estado" es tan solo un grupo de
+valores de los campos del objeto. Aunque nunca hayas oido hablar de maquinas de
+estados finitos, probablemente hayas implementado un estado al menos alguna
+vez. ¿Te suena esta estructura de codigo?
+
+class Document is
+    field state: string
+    //...
+    method publish() is
+        "draft":
+            state = "moderation"
+            break
+        "moderation":
+            if(currentUser.role == 'admin')
+                state = "published"
+            break
+        "published":
+        // No hacer nada.
+        break
+    //...
+
+La mayor debilidad de una maquina de estado basada en condicionales se revela
+una vez que empezamos a añadir mas y mas estados y comportamientos dependientes
+de estados a la clase Documento. La mayoria de los metodos contendran
+condicionales monstruosos que eligen el comportamiento adecuado de un metodo de
+acuerdo con el estado actual. Un codigo asi es muy dificil de mantener, porque
+cualquier cambio en la logica de transicion puede requerir cambiar
+condicionales de estado de cada metodo.
+
+El problema tiende a empeorar con la evolucion del proyecto. Es bastante
+dificil predecir todos los estados y transiciones posibles en la etapa de
+diseño. Por ello, una maquina de estados esbelta, creada con un grupo limitado
+de condicionales, puede crecer hasta convertirse en un abotargado desastre con
+el tiempo.
+
+
+
+                        Solucion
+
+El patron State sugiere que crees nuevas clases para todos los estados posibles
+de un objeto y extraigas todos los comportamientos especificos del estado para
+colocarlos dentro de esas clases.
+
+En lugar de implementar todos los comportamientos por su cuenta, el objeto
+original, llamado contexto, almacena una referencia a uno de los objetos de
+estado que representa su estado actual y delega todo el trabajo relacionado con
+el estado a ese objeto.
+
+Para la transicion del contexto a otro estado, sustituye el objeto de estado
+activo por otro objeto que represente ese nuevo estado. esto solo es posible si
+todas las clases de estado siguen la misma interfaz y el propio contexto
+funciona con esos objetos a traves de esa interfaz.
+
+Esta estructura puede resultar similar al patron Strategy, pero hay una
+diferencia clave. En el patron State, los estados particulares pueden conocerse
+entre si e iniciar transiciones de un estado a otro, mientras que las
+estrategias casi nunca se conocen.
+
+
+                        Analogia en el mundo real
+
+Los botones e interruptores de tu smartphone se comportan de forma diferente
+dependiendo del estado actual del dispositivo:
+
+    .- Cuando el telefono esta desbloqueado, al pulsar botones se ejecutan
+    varias funciones.
+
+    .- Cuando el telefono esta bloqueado, pulsar desbloquea la pantalla.
+
+    .- Cuando la bateria del telefono esta baja, pulsar un boton muestra la
+    pantalla en carga.
+
+
+
+                        Aplicabilidad
+
+>>> Utiliza el patron State cuando tengas un objeto que se comporta de forma
+diferente dependiendo de su estado actual, el numero de estados sea enorme y el
+codigo especifico del estado cambie con frecuencia.
+
+<<< El patron sugiere que extraigas todo el codigo especifico del estado y lo metas
+dentro de un grupo de clases especificas. Como resultado, puedes añadir nuevos
+estados o cambiar los existentes independientemente entre si, reduciendo el
+costo de mantenimiento.
+
+>>> Utiliza el patron cuando tengas una clase contaminada con enormes condicionales
+que alteran el modo en que se comporta la clase  de acuerdo con los valores
+actuales de los campos de la clase.
+
+<<< El patron State te permite extraer ramas de esos condicionales a metodos de las
+clases estado correspondientes. Al hacerlo, tambien puedes limpiar campos
+temporales y metodos de ayuda implicados en codigo especifico del estado de
+fuera de tu clase principal.
+
+>>> Utiliza el patron State cuando tengas mucho codigo duplicado por estados
+similares y transiciones de una maquina de estados basada en condicionales.
+
+<<< El patron State te permite componer jerarquias de clases de estado y reducir
+la duplicacion, extrayendo el codigo comun y metiendolo en clases abastractas
+base.
+
+                        Como implementarlo
+
+1.- Decide qué clase actuará como contexto. Puede ser una clase existente que
+ya tiene el código dependiente del estado, o una nueva clase, si el código
+específico del estado está distribuido a lo largo de varias clases.
+
+2.- Declara la interfaz de estado. Aunque puede replicar todos los métodos
+declarados en el contexto, céntrate en los que pueden contener comportamientos
+específicos del estado.
+
+3.- Para cada estado actual, crea una clase derivada de la interfaz de estado.
+Después repasa los métodos del contexto y extrae todo el código relacionado con
+ese estado para meterlo en tu clase recién creada.
+
+    Al mover el código a la clase estado, puede que descubras que depende de
+    miembros privados del contexto. Hay varias soluciones alternativas:
+        
+        .- Haz públicos esos campos o métodos.
+        .- Convierte el comportamiento que estás extrayendo para ponerlo en un
+        método público en el contexto e invócalo desde la clase de estado. Esta
+        forma es desagradable pero rápida y siempre podrás arreglarlo más
+        adelante.
+        .- Anida las clases de estado en la clase contexto, pero sólo si tu
+        lenguaje de programación soporta clases anidadas.
+
+4.- En la clase contexto, añade un campo de referencia del tipo de interfaz de
+estado y un modificador (setter) público que permita sobrescribir el valor de
+ese campo.
+
+5.- Vuelve a repasar el método del contexto y sustituye los condicionales de
+estado vacíos por llamados a métodos correspondientes del objeto estado.
+
+6.- Para cambiar el estado del contexto, crea una instancia de una clase de
+estado y pásala a la clase contexto. Puedes hacer esto dentro de la propia
+clase contexto, en diferentes estados, o en el cliente. Se haga de una forma u
+otra, la clase se vuelve dependiente de la clase de estado concreto que
+instancia.
+
+
